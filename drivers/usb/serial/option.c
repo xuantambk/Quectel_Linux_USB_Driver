@@ -2055,6 +2055,64 @@ static int option_probe(struct usb_serial *serial,
 	if (device_flags & NUMEP2 && iface_desc->bNumEndpoints != 2)
 		return -ENODEV;
 
+#if 1 //Added by Quectel
+//Quectel UC20's interface 4 can be used as USB network device
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9003)
+    && serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+  return -ENODEV;
+//Quectel EC20's interface 4 can be used as USB network device
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9215)
+    && serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+  return -ENODEV;
+//Quectel EC25&EC21&EG91&EG95&EG06&EP06&EM06&BG96/AG35's interface 4 can be used as USB network device
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C)
+    && serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
+  return -ENODEV;
+  #endif
+
+  #if 1 //Added by Quectel
+  //For USB Auto Suspend
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9090)) {
+    pm_runtime_set_autosuspend_delay(&serial->dev->dev, 3000);
+    usb_enable_autosuspend(serial->dev);
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9003)) {
+    pm_runtime_set_autosuspend_delay(&serial->dev->dev, 3000);
+    usb_enable_autosuspend(serial->dev);
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9215)) {
+    pm_runtime_set_autosuspend_delay(&serial->dev->dev, 3000);
+    usb_enable_autosuspend(serial->dev);
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C)) {
+    pm_runtime_set_autosuspend_delay(&serial->dev->dev, 3000);
+    usb_enable_autosuspend(serial->dev);
+  }
+  #endif
+  
+  #if 1 //Added by Quectel
+  //For USB Remote Wakeup
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9090)) {
+    device_init_wakeup(&serial->dev->dev, 1); //usb remote wakeup
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9003)) {
+    device_init_wakeup(&serial->dev->dev, 1); //usb remote wakeup
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x05C6) &&
+    serial->dev->descriptor.idProduct == cpu_to_le16(0x9215)) {
+    device_init_wakeup(&serial->dev->dev, 1); //usb remote wakeup
+  }
+  if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2C7C)) {
+    device_init_wakeup(&serial->dev->dev, 1); //usb remote wakeup
+  }
+  #endif
 	/* Store the device flags so we can use them during attach. */
 	usb_set_serial_data(serial, (void *)device_flags);
 
